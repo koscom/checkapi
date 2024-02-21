@@ -1,1 +1,1 @@
-# https://koscom.github.io/check_api/
+# <https://koscom.github.io/checkapi/>

@@ -1,0 +1,359 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CHECK API 활용",
+    "section": "",
+    "text": "정렬\n       디폴트\n         \n          제목\n        \n         \n          날짜 - 날짜(오름차순)\n        \n         \n          날짜 - 날짜(내림차순)\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nCHECK-API 목록 : 업종/지수 정보\n\n\n\n\n\n\nCHECK-API 목록\n\n\nkquant 패키지\n\n\n업종/지수 정보\n\n\n\n\n\n\n\n\n\n2024-02-06\n\n\n\n\n\n\n\n\n\n\n\n\nCHECK-API 목록 : 주식 정보\n\n\n\n\n\n\nCHECK-API 목록\n\n\nkquant 패키지\n\n\n주식 정보\n\n\n\n\n\n\n\n\n\n2024-01-29\n\n\n\n\n\n\n\n\n\n\n\n\nkquant 패키지 소개\n\n\n\n\n\n\nkquant 패키지\n\n\nPython\n\n\n\n\n\n\n\n\n\n2024-01-10\n\n\n\n\n\n\n\n\n\n\n\n\nCHECK-API 사용량 확인 방법\n\n\n\n\n\n\nCHECK-API 사용법\n\n\n\n\n\n\n\n\n\n2024-01-03\n\n\n\n\n\n\n\n\n\n\n\n\nCHECK-API 사용법 1\n\n\n\n\n\n\nCHECK-API 사용법\n\n\n\n\n\n\n\n\n\n2023-12-21\n\n\n\n\n\n\n\n\n\n\n\n\n환경 구축 3 : 주피터랩 설치 및 사용\n\n\n\n\n\n\n환경구축\n\n\nPython\n\n\n\n\n\n\n\n\n\n2023-12-12\n\n\n\n\n\n\n\n\n\n\n\n\n환경 구축 2 : 파이썬 패키지 설치\n\n\n\n\n\n\n환경구축\n\n\nPython\n\n\n\n\n\n\n\n\n\n2023-11-30\n\n\n\n\n\n\n\n\n\n\n\n\n웹사이트 소개\n\n\n\n\n\n\n뉴스\n\n\n\n\n\n\n\n\n\n2023-11-22\n\n\n\n\n\n\n\n\n\n\n\n\n환경 구축 1 : 파이썬 설치\n\n\n\n\n\n\n환경구축\n\n\nPython\n\n\n\n\n\n\n\n\n\n2023-11-22\n\n\n\n\n\n\n일치 없음"
+  },
+  {
+    "objectID": "posts/0001_intro/index.html",
+    "href": "posts/0001_intro/index.html",
+    "title": "웹사이트 소개",
+    "section": "",
+    "text": "본 웹사이트는 코스콤 CHECK-API 서비스를 활용하는 다양한 방법과 예제를 제공합니다.\n\n\nCHECK-API 서비스는 코스콤 CHECK 서비스의 금융 데이터를 체크 단말을 거치지 않고 직접 고객의 개인 컴퓨터나 서버에 REST-API 방식으로 제공하는 서비스 입니다.\n\n\n\n그림 1: CHECK-API 서비스\n\n\n보다 자세한 내용과 신청 방법은 CHECK-API 서비스 소개 웹사이트에 있습니다.\n\nCHECK-API 서비스 소개 웹사이트 : https://checkapi.koscom.co.kr/\n\n\n\n\nCHECK-API 서비스를 사용하면 사용자가 직접 금융 데이터 원본을 대상으로 데이터 분석을 하거나 이를 활용한 분석 프로그램을 작성할 수 있습니다.\n\n\n다음 화면은 CHECK-API를 사용하여 주식의 일간 차트를 그리는 간단한 대시보드 예제입니다.\n\n\n\n그림 2: CHECK-API로 제작한 대시보드 프로그램 예제\n\n\n참고로 본 대시보드 예제의 소스코드는 다음과 같습니다.\nimport dash as ds\nimport kquant as kq\n\n\ndf_symbol = kq.symbol_stock()[:10]\nname_list = df_symbol.NAME.values\nsymbol_dict = dict(zip(df_symbol.NAME, df_symbol.SYMBOL))\ninitial_name = name_list[0]\ninitial_symbol = symbol_dict[initial_name]\ninitial_fig = kq.chart_candle(kq.daily_stock(\n    initial_symbol), title=f\"{initial_name}\")\n\napp = ds.Dash()\n\napp.layout = ds.html.Div([\n    ds.html.H1(children=\"대시보드 예제\", style={\"text-align\": \"center\"}),\n    ds.html.Div([\n        ds.html.Div([ds.dcc.Dropdown(name_list, initial_name, id=\"dropdown-selection\")],\n                    style={\"width\": \"300px\", \"margin-top\": \"60px\"}),\n        ds.html.Div([ds.dcc.Graph(id=\"candle\", figure=initial_fig)],\n                    style={\"width\": \"1200px\", \"height\": \"600px\"})\n    ], style={\"display\": \"flex\"})\n])\n\n\n@ds.callback(\n    ds.Output(\"candle\", \"figure\"),\n    ds.Input(\"dropdown-selection\", \"value\")\n)\ndef update_graph(value):\n    df = kq.daily_stock(symbol_dict[value])\n    return kq.chart_candle(df, title=f\"{value}\")\n\n\nif __name__ == '__main__':\n    app.run(debug=False)\n\n\n\n다음 화면은 CHECK-API를 Telegram과 연동하여 주식의 현재가격을 조회하거나 일간 차트를 그리는 간단한 예제입니다.\n\n\n\n그림 3: Telegram과 CHECK-API 연동 예제\n\n\n\n\n\n\n이러한 응용 프로그램을 제작하기 위해서는 파이썬이나 자바와 같은 프로그래밍 언어와 REST-API 호출 방법그리고 고급 분석을 위한 다양한 라이브러리를 쓸 수 있어야 합니다.\n본 웹사이트에서는 CHECK-API 서비스를 보다 잘 활용하기 위해 프로그래밍 언어와 라이브러리 설치와 같은 기초부터 각종 고급 분석 예제 코드를 제공합니다.\n\n\n\n본 블로그에서 덧글 기능을 사용하기 위해서는 github 서비스 계정으로 로그인하셔야 합니다. github 서비스 계정은 다음 웹사이트에서 무료로 생성할 수 있습니다.\n\nhttps://github.com/"
+  },
+  {
+    "objectID": "posts/0001_intro/index.html#check-api-서비스",
+    "href": "posts/0001_intro/index.html#check-api-서비스",
+    "title": "웹사이트 소개",
+    "section": "",
+    "text": "CHECK-API 서비스는 코스콤 CHECK 서비스의 금융 데이터를 체크 단말을 거치지 않고 직접 고객의 개인 컴퓨터나 서버에 REST-API 방식으로 제공하는 서비스 입니다.\n\n\n\n그림 1: CHECK-API 서비스\n\n\n보다 자세한 내용과 신청 방법은 CHECK-API 서비스 소개 웹사이트에 있습니다.\n\nCHECK-API 서비스 소개 웹사이트 : https://checkapi.koscom.co.kr/"
+  },
+  {
+    "objectID": "posts/0001_intro/index.html#check-api-서비스의-활용",
+    "href": "posts/0001_intro/index.html#check-api-서비스의-활용",
+    "title": "웹사이트 소개",
+    "section": "",
+    "text": "CHECK-API 서비스를 사용하면 사용자가 직접 금융 데이터 원본을 대상으로 데이터 분석을 하거나 이를 활용한 분석 프로그램을 작성할 수 있습니다.\n\n\n다음 화면은 CHECK-API를 사용하여 주식의 일간 차트를 그리는 간단한 대시보드 예제입니다.\n\n\n\n그림 2: CHECK-API로 제작한 대시보드 프로그램 예제\n\n\n참고로 본 대시보드 예제의 소스코드는 다음과 같습니다.\nimport dash as ds\nimport kquant as kq\n\n\ndf_symbol = kq.symbol_stock()[:10]\nname_list = df_symbol.NAME.values\nsymbol_dict = dict(zip(df_symbol.NAME, df_symbol.SYMBOL))\ninitial_name = name_list[0]\ninitial_symbol = symbol_dict[initial_name]\ninitial_fig = kq.chart_candle(kq.daily_stock(\n    initial_symbol), title=f\"{initial_name}\")\n\napp = ds.Dash()\n\napp.layout = ds.html.Div([\n    ds.html.H1(children=\"대시보드 예제\", style={\"text-align\": \"center\"}),\n    ds.html.Div([\n        ds.html.Div([ds.dcc.Dropdown(name_list, initial_name, id=\"dropdown-selection\")],\n                    style={\"width\": \"300px\", \"margin-top\": \"60px\"}),\n        ds.html.Div([ds.dcc.Graph(id=\"candle\", figure=initial_fig)],\n                    style={\"width\": \"1200px\", \"height\": \"600px\"})\n    ], style={\"display\": \"flex\"})\n])\n\n\n@ds.callback(\n    ds.Output(\"candle\", \"figure\"),\n    ds.Input(\"dropdown-selection\", \"value\")\n)\ndef update_graph(value):\n    df = kq.daily_stock(symbol_dict[value])\n    return kq.chart_candle(df, title=f\"{value}\")\n\n\nif __name__ == '__main__':\n    app.run(debug=False)\n\n\n\n다음 화면은 CHECK-API를 Telegram과 연동하여 주식의 현재가격을 조회하거나 일간 차트를 그리는 간단한 예제입니다.\n\n\n\n그림 3: Telegram과 CHECK-API 연동 예제"
+  },
+  {
+    "objectID": "posts/0001_intro/index.html#본-웹사이트의-내용",
+    "href": "posts/0001_intro/index.html#본-웹사이트의-내용",
+    "title": "웹사이트 소개",
+    "section": "",
+    "text": "이러한 응용 프로그램을 제작하기 위해서는 파이썬이나 자바와 같은 프로그래밍 언어와 REST-API 호출 방법그리고 고급 분석을 위한 다양한 라이브러리를 쓸 수 있어야 합니다.\n본 웹사이트에서는 CHECK-API 서비스를 보다 잘 활용하기 위해 프로그래밍 언어와 라이브러리 설치와 같은 기초부터 각종 고급 분석 예제 코드를 제공합니다."
+  },
+  {
+    "objectID": "posts/0001_intro/index.html#덧글-기능-사용",
+    "href": "posts/0001_intro/index.html#덧글-기능-사용",
+    "title": "웹사이트 소개",
+    "section": "",
+    "text": "본 블로그에서 덧글 기능을 사용하기 위해서는 github 서비스 계정으로 로그인하셔야 합니다. github 서비스 계정은 다음 웹사이트에서 무료로 생성할 수 있습니다.\n\nhttps://github.com/"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html",
+    "href": "posts/0003_env_install_2/index.html",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "본 글에서는 CHECK-API를 활용하기 위해 필요한 파이썬 패키지를 설치하는 법을 설명합니다.\n\n\n여기에서는 컴퓨터에 이미 Mambaforge 기반의 파이썬 배포판이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n또한 이 글에서 설명하는 설치 명령을 사용하려면 윈도우 실행 메뉴에서 “Miniforge3” &gt; “Miniforge Prompt” 메뉴를 선택하여 Miniforge 프롬프트를 시작해야 합니다.\n\n\n\n그림 1: 윈도우에서 Miniforge 실행 메뉴\n\n\n\n\n\nCHECK-API를 활용하는데 도움이 되는 중요 파이썬 패키지에는 다음과 같은 것들이 있습니다. 이 목록은 일부일 뿐이며 사용하고자 하는 목적에 따라 이외에도 다양한 패키지를 추가해야 할 수 있습니다.\n\nnumpy: 수치해석\npandas: 데이터 분석\njupyterlab: 노트북 형식의 코드 개발\nstatsmodels: 통계분석\ntensorflow: 머신러닝\ntorch: 머신러닝\nrequests: CHECK-API 호출\npython-dateutil: 날짜 처리\nmatplotlib: 시각화\nseaborn: 통계 시각화\nplotly: 인터랙티브 시각화\ndash: 대시보드 제작\nflask: 대시보드를 위한 웹서버\n\n추천 패키지의 전체 목록은 다음 링크에 있는 requirements.txt 파일에 정리되어 있습니다.\n\n윈도우용 requirements.txt 파일 링크\n맥용 requirements.mac.txt 파일 링크\n리눅스용 requirements.linux.txt 파일 링크\n\n\n\n\n파이썬에서 패키지를 설치할 때는 명령 프롬프트 또는 터미널 창에서 다음과 같은 형식으로 pip 명령을 사용합니다.\npip install 설치하고자하는_패키지_이름 [설치하고자하는_패키지_이름]\n예를 들어 numpy 패키지와 pandas 패키지를 설치하려면 다음과 같은 명령을 사용합니다.\npip install numpy pandas\n\n\n\n회사에서 pip 명령을 사용하는 경우 방화벽이나 프록시 설정으로 인해 다음과 같은 오류가 발생할 수 있습니다.\nSSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED certificate verify failed: unable to get local issuer certificate'))'\n이러한 오류는 두 가지 방법 중 하나로 해결할 수 있습니다.\n\n\npip 명령을 실행할 때마다 다음과 같이 --trusted-host 옵션을 추가합니다.\npip install --trusted-host pypi.org --trusted-host files.pythonhosted.org 설치하고자하는_패키지_이름\n만약 기본 패키지 레포지토리인 pypi.org, files.pythonhosted.org 이외의 레포지토리를 이용하는 경우에는 해다아는 레포지토리에 대한 옵션을 추가하면 됩니다. 예를 들어 pytorch 패키지 레포지토리 주소는 download.pytorch.org이므로 pytorch 패키지는 다음과 같이 설치할 수 있습니다.\npip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org torch\n\n\n\npip 명령을 실행할 때마다 --trusted-host 옵션을 사용하기 귀찮은 경우에는 사용자 홈 디렉토리 아래에 pip라는 이름의 디렉토리를 만들고 다음과 같은 pip.ini 파일을 만들어 주면 pip 명령 실행시 --trusted-host 옵션을 추가하지 않아도 자동으로 적용됩니다.\n[global]\ntrusted-host = pypi.org\n               files.pythonhosted.org\n               download.pytorch.org\npip.ini 파일은 다음 링크에서 다운로드 받을 수 있습니다.\n\npip.ini\n\n\n\n\n\n설치하려는 패키지가 많은 경우에는 패키지 목록을 정리한 requirements.txt 파일을 pip 명령의 인수로 사용할 수 있습니다.\npip -r requirements.txt\n위에서 추천하는 모든 패키지를 한꺼번에 설치하기 위해서는 위 링크에서 requirements.txt 파일을 다운로드 받아 프롬프트 창이 위치한 디렉토리에 복사한 후 pip -r requirements.txt 명령을 사용하면 됩니다.\n\n\n\n\n\n\n주의 사항\n\n\n\n위 링크에서 제공하는 패키지는 140개 이상으로 설치에 10분 이상의 오랜 시간이 걸릴 수 있습니다.\n\n\n\n\n\npip list 명령을 실행하면 설치된 패키지의 목록을 확인할 수 있습니다.\npip list\n\n\n\n패키지를 삭제하고자 하는 경우에는 다음과 같이 pip uninstall 명령을 사용할 수 있습니다.\npip uninstall 제거하고자하는_패키지_이름 [제거하고자하는_패키지_이름]"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#준비사항",
+    "href": "posts/0003_env_install_2/index.html#준비사항",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "여기에서는 컴퓨터에 이미 Mambaforge 기반의 파이썬 배포판이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n또한 이 글에서 설명하는 설치 명령을 사용하려면 윈도우 실행 메뉴에서 “Miniforge3” &gt; “Miniforge Prompt” 메뉴를 선택하여 Miniforge 프롬프트를 시작해야 합니다.\n\n\n\n그림 1: 윈도우에서 Miniforge 실행 메뉴"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#추천-파이썬-패키지-목록",
+    "href": "posts/0003_env_install_2/index.html#추천-파이썬-패키지-목록",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "CHECK-API를 활용하는데 도움이 되는 중요 파이썬 패키지에는 다음과 같은 것들이 있습니다. 이 목록은 일부일 뿐이며 사용하고자 하는 목적에 따라 이외에도 다양한 패키지를 추가해야 할 수 있습니다.\n\nnumpy: 수치해석\npandas: 데이터 분석\njupyterlab: 노트북 형식의 코드 개발\nstatsmodels: 통계분석\ntensorflow: 머신러닝\ntorch: 머신러닝\nrequests: CHECK-API 호출\npython-dateutil: 날짜 처리\nmatplotlib: 시각화\nseaborn: 통계 시각화\nplotly: 인터랙티브 시각화\ndash: 대시보드 제작\nflask: 대시보드를 위한 웹서버\n\n추천 패키지의 전체 목록은 다음 링크에 있는 requirements.txt 파일에 정리되어 있습니다.\n\n윈도우용 requirements.txt 파일 링크\n맥용 requirements.mac.txt 파일 링크\n리눅스용 requirements.linux.txt 파일 링크"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#pip-명령을-사용한-패키지-설치",
+    "href": "posts/0003_env_install_2/index.html#pip-명령을-사용한-패키지-설치",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "파이썬에서 패키지를 설치할 때는 명령 프롬프트 또는 터미널 창에서 다음과 같은 형식으로 pip 명령을 사용합니다.\npip install 설치하고자하는_패키지_이름 [설치하고자하는_패키지_이름]\n예를 들어 numpy 패키지와 pandas 패키지를 설치하려면 다음과 같은 명령을 사용합니다.\npip install numpy pandas"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#ssl-인증서-오류가-발생하는-경우",
+    "href": "posts/0003_env_install_2/index.html#ssl-인증서-오류가-발생하는-경우",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "회사에서 pip 명령을 사용하는 경우 방화벽이나 프록시 설정으로 인해 다음과 같은 오류가 발생할 수 있습니다.\nSSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED certificate verify failed: unable to get local issuer certificate'))'\n이러한 오류는 두 가지 방법 중 하나로 해결할 수 있습니다.\n\n\npip 명령을 실행할 때마다 다음과 같이 --trusted-host 옵션을 추가합니다.\npip install --trusted-host pypi.org --trusted-host files.pythonhosted.org 설치하고자하는_패키지_이름\n만약 기본 패키지 레포지토리인 pypi.org, files.pythonhosted.org 이외의 레포지토리를 이용하는 경우에는 해다아는 레포지토리에 대한 옵션을 추가하면 됩니다. 예를 들어 pytorch 패키지 레포지토리 주소는 download.pytorch.org이므로 pytorch 패키지는 다음과 같이 설치할 수 있습니다.\npip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org torch\n\n\n\npip 명령을 실행할 때마다 --trusted-host 옵션을 사용하기 귀찮은 경우에는 사용자 홈 디렉토리 아래에 pip라는 이름의 디렉토리를 만들고 다음과 같은 pip.ini 파일을 만들어 주면 pip 명령 실행시 --trusted-host 옵션을 추가하지 않아도 자동으로 적용됩니다.\n[global]\ntrusted-host = pypi.org\n               files.pythonhosted.org\n               download.pytorch.org\npip.ini 파일은 다음 링크에서 다운로드 받을 수 있습니다.\n\npip.ini"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#pip-명령을-사용한-다수의-패키지-동시-설치",
+    "href": "posts/0003_env_install_2/index.html#pip-명령을-사용한-다수의-패키지-동시-설치",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "설치하려는 패키지가 많은 경우에는 패키지 목록을 정리한 requirements.txt 파일을 pip 명령의 인수로 사용할 수 있습니다.\npip -r requirements.txt\n위에서 추천하는 모든 패키지를 한꺼번에 설치하기 위해서는 위 링크에서 requirements.txt 파일을 다운로드 받아 프롬프트 창이 위치한 디렉토리에 복사한 후 pip -r requirements.txt 명령을 사용하면 됩니다.\n\n\n\n\n\n\n주의 사항\n\n\n\n위 링크에서 제공하는 패키지는 140개 이상으로 설치에 10분 이상의 오랜 시간이 걸릴 수 있습니다."
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#설치된-패키지의-확인",
+    "href": "posts/0003_env_install_2/index.html#설치된-패키지의-확인",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "pip list 명령을 실행하면 설치된 패키지의 목록을 확인할 수 있습니다.\npip list"
+  },
+  {
+    "objectID": "posts/0003_env_install_2/index.html#패키지-삭제",
+    "href": "posts/0003_env_install_2/index.html#패키지-삭제",
+    "title": "환경 구축 2 : 파이썬 패키지 설치",
+    "section": "",
+    "text": "패키지를 삭제하고자 하는 경우에는 다음과 같이 pip uninstall 명령을 사용할 수 있습니다.\npip uninstall 제거하고자하는_패키지_이름 [제거하고자하는_패키지_이름]"
+  },
+  {
+    "objectID": "posts/0008_api_stock/index.html",
+    "href": "posts/0008_api_stock/index.html",
+    "title": "CHECK-API 목록 : 주식 정보",
+    "section": "",
+    "text": "본 글에서는 CHECK-API 중 주식 정보와 관련된 API 목록과 제공 데이터를 소개합니다.\n\n\n주식 관련 API는 크게 다음과 같이 구성됩니다.\n\n주식관련 정보는 크게 나누어 종목 정보와 지수/업종 정보로 나누어 제공합니다. 여기에서는 종목 정보에 대해 설명하며 지수/업종 정보는 별도의 페이지에서 설명합니다.\n종목 정보는 유가증권시장 종목과 코스닥시장 종목에 대한 정보는 각각 별도의 API로 제공합니다.\nkquant 패키지의 일부 함수는 사용자 편의를 위해 유가증권시장 종목과 코스닥시장 종목에 대한 정보를 동일한 함수로 제공하며 함수 내부에서 시장을 스스로 구분하여 해당하는 API를 호출합니다.\nkquant 패키지는 종목의 시장 구분 이외에도 사용자 편의를 위해 유사한 복수의 API를 하나의 함수로 인수를 달리하여 구할 수 있도록 제공하는 경우가 있습니다.\nkquant 패키지는 현재 개발 중인 베타 버전으로 모든 CHECK-API 정보를 제공하지 않을 수 있습니다. 향후 모든 CHECK-API 정보를 사용할 수 있도록 지속적으로 개발중입니다.\nkquant 패키지의 출력은 사용자 편의를 위해 원래 CHECK-API와 출력 필드의 구성 및 데이터 타입을 다르게 제공할 수 있습니다. 설명서를 읽고 사용에 주의하시기 바랍니다.\n\n\n\n\n각각의 주식 시장에 대해 다음과 같은 카테고리의 정보를 제공합니다.\n\n\n\n\n\n\n\n구분\n제공 정보\n\n\n\n\n코드 정보\n종목별 국제표준코드(ISIN), 단축코드, 종목명, 호출 당일의 주식통합시장조치\n\n\n기본 정보\n단일 종목 혹은 복수 종목에 대해 호출 시점의 당일 시가/고가/저가/현재가, 거래량, 거래 대금, 등락 등의 정보\n\n\n종합 정보\n단일 종목에 대해 호출 시점의 기본 정보와 재무 정보 등의 추가 정보\n\n\n호가 정보\n호출 시점의 10단계의 매도호가/매수호가 및 해당 호가의 잔량 등의 정보\n\n\n체결 정보\n당일 호출 시점까지의 체결 시간/가격/거래량 등의 틱 데이터(tick data) 정보 (과거 일자 정보는 제공하지 않음)\n\n\n일중 가격 정보\n일자별 1분/10초 간격 시가/고가/저가/종가 등의 정보 (10초 정보는 호출 당일만 제공)\n\n\n일별 가격 정보\n일자별 시가/고가/저가/현재가(종가), 거래량, 거래 대금, 시가총액, 상장 주식수 등의 정보\n\n\n일별 대량매매 정보\n일자별 종목별 대량매매 정보\n\n\n일별 공매도 정보\n일자별 종목별 공매도 거래량, 거래대금, 잔고 등의 정보\n\n\n일별 대차잔고 정보\n일자별 종목별 대차잔고 정보\n\n\n일별 신용잔고 정보\n일자별 종목별 신용잔고 정보\n\n\n일별 회원사 정보\n일자별 회원사별 거래량 및 거래대금 정보\n\n\n순위 정보\n과거 요청기간의 전종목의 대량매매, 공매도, 대차거래, 투자자 순위 정보\n\n\n\n\n\n\n정보의 시점이나 시장 등에 따른 세부 API URL 및 kquant 함수는 다음과 같습니다.\n\n\n\n\n\n\n\n\n\n\n\n\n구분\n종목\n시점\n유가증권시장 API URL\n코스닥시장 API URL\nkquant 함수\n\n\n\n\n코드\n전종목\n호출 시점\n/stock/m001/code_info\n/stock/m003/code_info\nsymbol_stock\n\n\n기본\n단일\n호출 시점\n/stock/m001/basic_info\n/stock/m003/basic_info\ninfo_basic_stock\n\n\n기본\n복수\n호출 시점\n/stock/m001/basic_info_port\n/stock/m003/basic_info_port\ninfo_basic_stocks\n\n\n종합\n단일\n호출 시점\n/stock/m001/basic_info_all\n/stock/m003/basic_info_all\ninfo_stock\n\n\n종합\n복수\n호출 시점\n-\n-\ninfo_stocks\n\n\n순위\n전종목\n호출 시점\n/stock/m001/rank\n/stock/m003/rank\nrank_stocks\n\n\n호가\n단일\n호출 시점\n/stock/m001/hoga_info\n/stock/m003/hoga_info\nquote_stock\n\n\n체결\n단일\n당일 호출 시점까지\n/stock/m001/tick_info\n/stock/m003/tick_info\ntrade_stock\n\n\n일중(10초)\n단일\n당일 호출 시점까지\n/stock/m001/intra_info\n/stock/m003/intra_info\nintra_stock\n\n\n일중(분)\n단일\n과거 일자별\n/stock/m001/intra_date\n/stock/m003/intra_date\nintra_stock\n\n\n일별 가격\n단일\n과거 일자별\n/stock/m001/hist_info\n/stock/m003/hist_info\ndaily_stock\n\n\n일별 대량매매\n단일\n과거 일자별\n/stock/m001/mass_hist_info\n/stock/m003/mass_hist_info\ndaily_block_stock\n\n\n일별 공매도\n단일\n과거 일자별\n/stock/m001/short_hist_info\n/stock/m003/short_hist_info\ndaily_short_stock\n\n\n일별 대차잔고\n단일\n과거 일자별\n/stock/m001/loan_hist_info\n/stock/m003/loan_hist_info\ndaily_lend_stock\n\n\n일별 신용잔고\n단일\n과거 일자별\n/stock/m001/credit_hist_info\n/stock/m001/credit_hist_info\ndaily_margin_stock\n\n\n기간 대량매매\n전종목\n과거 기간합산\n/stock/m001/rank_mass_date\n/stock/m003/rank_mass_date\nsum_block_stocks\n\n\n기간 공매도\n전종목\n과거 기간합산\n/stock/m001/rank_short_date\n/stock/m003/rank_short_date\nsum_short_stocks\n\n\n기간 투자자\n전종목\n과거 기간합산\n/stock/m001/rank_invest_date\n/stock/m001/rank_invest_date\nsum_investor_stocks\n\n\n기간 회원사\n회원사\n과거 기간합산\n/stock/m001/member_date\n/stock/m001/member_date\nsum_broker_stocks"
+  },
+  {
+    "objectID": "posts/0008_api_stock/index.html#주식-관련-api의-구성",
+    "href": "posts/0008_api_stock/index.html#주식-관련-api의-구성",
+    "title": "CHECK-API 목록 : 주식 정보",
+    "section": "",
+    "text": "주식 관련 API는 크게 다음과 같이 구성됩니다.\n\n주식관련 정보는 크게 나누어 종목 정보와 지수/업종 정보로 나누어 제공합니다. 여기에서는 종목 정보에 대해 설명하며 지수/업종 정보는 별도의 페이지에서 설명합니다.\n종목 정보는 유가증권시장 종목과 코스닥시장 종목에 대한 정보는 각각 별도의 API로 제공합니다.\nkquant 패키지의 일부 함수는 사용자 편의를 위해 유가증권시장 종목과 코스닥시장 종목에 대한 정보를 동일한 함수로 제공하며 함수 내부에서 시장을 스스로 구분하여 해당하는 API를 호출합니다.\nkquant 패키지는 종목의 시장 구분 이외에도 사용자 편의를 위해 유사한 복수의 API를 하나의 함수로 인수를 달리하여 구할 수 있도록 제공하는 경우가 있습니다.\nkquant 패키지는 현재 개발 중인 베타 버전으로 모든 CHECK-API 정보를 제공하지 않을 수 있습니다. 향후 모든 CHECK-API 정보를 사용할 수 있도록 지속적으로 개발중입니다.\nkquant 패키지의 출력은 사용자 편의를 위해 원래 CHECK-API와 출력 필드의 구성 및 데이터 타입을 다르게 제공할 수 있습니다. 설명서를 읽고 사용에 주의하시기 바랍니다."
+  },
+  {
+    "objectID": "posts/0008_api_stock/index.html#카테고리",
+    "href": "posts/0008_api_stock/index.html#카테고리",
+    "title": "CHECK-API 목록 : 주식 정보",
+    "section": "",
+    "text": "각각의 주식 시장에 대해 다음과 같은 카테고리의 정보를 제공합니다.\n\n\n\n\n\n\n\n구분\n제공 정보\n\n\n\n\n코드 정보\n종목별 국제표준코드(ISIN), 단축코드, 종목명, 호출 당일의 주식통합시장조치\n\n\n기본 정보\n단일 종목 혹은 복수 종목에 대해 호출 시점의 당일 시가/고가/저가/현재가, 거래량, 거래 대금, 등락 등의 정보\n\n\n종합 정보\n단일 종목에 대해 호출 시점의 기본 정보와 재무 정보 등의 추가 정보\n\n\n호가 정보\n호출 시점의 10단계의 매도호가/매수호가 및 해당 호가의 잔량 등의 정보\n\n\n체결 정보\n당일 호출 시점까지의 체결 시간/가격/거래량 등의 틱 데이터(tick data) 정보 (과거 일자 정보는 제공하지 않음)\n\n\n일중 가격 정보\n일자별 1분/10초 간격 시가/고가/저가/종가 등의 정보 (10초 정보는 호출 당일만 제공)\n\n\n일별 가격 정보\n일자별 시가/고가/저가/현재가(종가), 거래량, 거래 대금, 시가총액, 상장 주식수 등의 정보\n\n\n일별 대량매매 정보\n일자별 종목별 대량매매 정보\n\n\n일별 공매도 정보\n일자별 종목별 공매도 거래량, 거래대금, 잔고 등의 정보\n\n\n일별 대차잔고 정보\n일자별 종목별 대차잔고 정보\n\n\n일별 신용잔고 정보\n일자별 종목별 신용잔고 정보\n\n\n일별 회원사 정보\n일자별 회원사별 거래량 및 거래대금 정보\n\n\n순위 정보\n과거 요청기간의 전종목의 대량매매, 공매도, 대차거래, 투자자 순위 정보"
+  },
+  {
+    "objectID": "posts/0008_api_stock/index.html#api-url-및-kquant-함수",
+    "href": "posts/0008_api_stock/index.html#api-url-및-kquant-함수",
+    "title": "CHECK-API 목록 : 주식 정보",
+    "section": "",
+    "text": "정보의 시점이나 시장 등에 따른 세부 API URL 및 kquant 함수는 다음과 같습니다.\n\n\n\n\n\n\n\n\n\n\n\n\n구분\n종목\n시점\n유가증권시장 API URL\n코스닥시장 API URL\nkquant 함수\n\n\n\n\n코드\n전종목\n호출 시점\n/stock/m001/code_info\n/stock/m003/code_info\nsymbol_stock\n\n\n기본\n단일\n호출 시점\n/stock/m001/basic_info\n/stock/m003/basic_info\ninfo_basic_stock\n\n\n기본\n복수\n호출 시점\n/stock/m001/basic_info_port\n/stock/m003/basic_info_port\ninfo_basic_stocks\n\n\n종합\n단일\n호출 시점\n/stock/m001/basic_info_all\n/stock/m003/basic_info_all\ninfo_stock\n\n\n종합\n복수\n호출 시점\n-\n-\ninfo_stocks\n\n\n순위\n전종목\n호출 시점\n/stock/m001/rank\n/stock/m003/rank\nrank_stocks\n\n\n호가\n단일\n호출 시점\n/stock/m001/hoga_info\n/stock/m003/hoga_info\nquote_stock\n\n\n체결\n단일\n당일 호출 시점까지\n/stock/m001/tick_info\n/stock/m003/tick_info\ntrade_stock\n\n\n일중(10초)\n단일\n당일 호출 시점까지\n/stock/m001/intra_info\n/stock/m003/intra_info\nintra_stock\n\n\n일중(분)\n단일\n과거 일자별\n/stock/m001/intra_date\n/stock/m003/intra_date\nintra_stock\n\n\n일별 가격\n단일\n과거 일자별\n/stock/m001/hist_info\n/stock/m003/hist_info\ndaily_stock\n\n\n일별 대량매매\n단일\n과거 일자별\n/stock/m001/mass_hist_info\n/stock/m003/mass_hist_info\ndaily_block_stock\n\n\n일별 공매도\n단일\n과거 일자별\n/stock/m001/short_hist_info\n/stock/m003/short_hist_info\ndaily_short_stock\n\n\n일별 대차잔고\n단일\n과거 일자별\n/stock/m001/loan_hist_info\n/stock/m003/loan_hist_info\ndaily_lend_stock\n\n\n일별 신용잔고\n단일\n과거 일자별\n/stock/m001/credit_hist_info\n/stock/m001/credit_hist_info\ndaily_margin_stock\n\n\n기간 대량매매\n전종목\n과거 기간합산\n/stock/m001/rank_mass_date\n/stock/m003/rank_mass_date\nsum_block_stocks\n\n\n기간 공매도\n전종목\n과거 기간합산\n/stock/m001/rank_short_date\n/stock/m003/rank_short_date\nsum_short_stocks\n\n\n기간 투자자\n전종목\n과거 기간합산\n/stock/m001/rank_invest_date\n/stock/m001/rank_invest_date\nsum_investor_stocks\n\n\n기간 회원사\n회원사\n과거 기간합산\n/stock/m001/member_date\n/stock/m001/member_date\nsum_broker_stocks"
+  },
+  {
+    "objectID": "posts/0006_check_quota/index.html",
+    "href": "posts/0006_check_quota/index.html",
+    "title": "CHECK-API 사용량 확인 방법",
+    "section": "",
+    "text": "본 글에서는 CHECK-API의 사용량을 확인하는 방법을 설명합니다.\n\n\nCHECK-API는 사용 요금제에 따라 사용량을 제한하고 있습니다. 각 요금제에 따른 사용량 제한은 다음과 같습니다.\n\n\n\n분류\nLEVEL\n일간 API 사용량\n\n\n\n\nCHECK 사용자\nBASIC\n0.2 GB / 일\n\n\n-\nPLUS\n0.5 GB / 일\n\n\nCHECK 미사용자\nLv.1\n1.0 GB / 일\n\n\n-\nLv.2\n5.0 GB / 일\n\n\n-\nLv.3\n10.0 GB / 일\n\n\n\n사용량을 초과하여 사용하는 경우 별도의 공지 없이 사용이 제한될 수도 있으므로 사용에 유의해 주시기 바랍니다.\n\n\n\nCHECK-API 사용량은 CHECK-API 공식 홈페이지에서 로그인하여 확인할 수 있습니다.\n\nhttps://checkapi.koscom.co.kr/\n\n\n홈페이지에 ID와 인증키(API-KEY) 값을 입력하여 로그인합니다.\n\n\n\n\n그림 1: CHECK-API 홈페이지 로그인 화면\n\n\n\n로그인 후 나타나는 우측 상단의 아이디 부분을 클릭합니다.\n\n\n\n\n그림 2: 사용량 확인 방법\n\n\n\n1일 사용한도 및 현재 당일 사용량 등의 사용 정보가 표시됩니다.\n\n\n\n\n그림 3: CHECK-API 사용량 확인 화면"
+  },
+  {
+    "objectID": "posts/0006_check_quota/index.html#check-api-사용량-제한",
+    "href": "posts/0006_check_quota/index.html#check-api-사용량-제한",
+    "title": "CHECK-API 사용량 확인 방법",
+    "section": "",
+    "text": "CHECK-API는 사용 요금제에 따라 사용량을 제한하고 있습니다. 각 요금제에 따른 사용량 제한은 다음과 같습니다.\n\n\n\n분류\nLEVEL\n일간 API 사용량\n\n\n\n\nCHECK 사용자\nBASIC\n0.2 GB / 일\n\n\n-\nPLUS\n0.5 GB / 일\n\n\nCHECK 미사용자\nLv.1\n1.0 GB / 일\n\n\n-\nLv.2\n5.0 GB / 일\n\n\n-\nLv.3\n10.0 GB / 일\n\n\n\n사용량을 초과하여 사용하는 경우 별도의 공지 없이 사용이 제한될 수도 있으므로 사용에 유의해 주시기 바랍니다."
+  },
+  {
+    "objectID": "posts/0006_check_quota/index.html#check-api-사용량-확인-방법-1",
+    "href": "posts/0006_check_quota/index.html#check-api-사용량-확인-방법-1",
+    "title": "CHECK-API 사용량 확인 방법",
+    "section": "",
+    "text": "CHECK-API 사용량은 CHECK-API 공식 홈페이지에서 로그인하여 확인할 수 있습니다.\n\nhttps://checkapi.koscom.co.kr/\n\n\n홈페이지에 ID와 인증키(API-KEY) 값을 입력하여 로그인합니다.\n\n\n\n\n그림 1: CHECK-API 홈페이지 로그인 화면\n\n\n\n로그인 후 나타나는 우측 상단의 아이디 부분을 클릭합니다.\n\n\n\n\n그림 2: 사용량 확인 방법\n\n\n\n1일 사용한도 및 현재 당일 사용량 등의 사용 정보가 표시됩니다.\n\n\n\n\n그림 3: CHECK-API 사용량 확인 화면"
+  },
+  {
+    "objectID": "posts/0009_api_index/index.html",
+    "href": "posts/0009_api_index/index.html",
+    "title": "CHECK-API 목록 : 업종/지수 정보",
+    "section": "",
+    "text": "본 글에서는 CHECK-API 중 업종/지수 정보와 관련된 API 목록과 제공 데이터를 소개합니다.\n\n\n업종/지수 관련 API는 크게 다음과 같이 구성됩니다.\n\n주식관련 정보는 크게 나누어 종목 정보와 지수/업종 정보로 나누어 제공합니다. 여기에서는 업종/지수 정보에 대해 설명하며 업종/지수 정보는 별도의 페이지에서 설명합니다.\n업종/지수 정보는 유가증권시장 업종/지수과 코스닥시장 업종/지수에 대한 정보는 각각 별도의 API로 제공합니다.\nkquant 패키지의 일부 함수는 사용자 편의를 위해 유가증권시장 업종/지수와 코스닥시장 업종/지수에 대한 정보를 동일한 함수로 제공하며 함수 내부에서 시장을 스스로 구분하여 해당하는 API를 호출합니다.\nkquant 패키지는 업종/지수 시장 구분 이외에도 사용자 편의를 위해 유사한 복수의 API를 하나의 함수로 인수를 달리하여 구할 수 있도록 제공하는 경우가 있습니다.\nkquant 패키지는 현재 개발 중인 베타 버전으로 모든 CHECK-API 정보를 제공하지 않을 수 있습니다. 향후 모든 CHECK-API 정보를 사용할 수 있도록 지속적으로 개발중입니다.\nkquant 패키지의 출력은 사용자 편의를 위해 원래 CHECK-API와 출력 필드의 구성 및 데이터 타입을 다르게 제공할 수 있습니다. 설명서를 읽고 사용에 주의하시기 바랍니다.\n\n\n\n\n업종/지수에 대해 다음과 같은 카테고리의 정보를 제공합니다.\n\n\n\n\n\n\n\n구분\n제공 정보\n\n\n\n\n코드 정보\n업종/지수별 코드 및 업종/지수명\n\n\n기본 정보\n단일 업종/지수에 대해 호출 시점의 당일 시가/고가/저가/현재가, 거래량, 거래 대금, 등락 등의 정보\n\n\n일중 정보\n일자별 1분/10초/1초 간격 시가/고가/저가/종가 등의 정보 (10초/1초 정보는 호출 당일만 제공)\n\n\n일별 정보\n일자별 시가/고가/저가/현재가(종가), 거래량, 거래 대금, 시가총액, 상장 주식수 등의 정보\n\n\n일별 투자자 정보\n업종/지수별 과거 일자별 투자자 매매 정보\n\n\n\n\n\n\n정보의 시점이나 시장 등에 따른 세부 API URL 및 kquant 함수는 다음과 같습니다.\n\n\n\n\n\n\n\n\n\n\n\n\n구분\n업종/지수\n시점\n유가증권시장 API URL\n코스닥시장 API URL\nkquant 함수\n\n\n\n\n코드\n전종목\n호출 시점\n/stock/m002/code_info\n/stock/m004/code_info\nsymbol_index\n\n\n기본\n단일\n호출 시점\n/stock/m002/basic_info\n/stock/m004/basic_info\ninfo_basic_index\n\n\n체결\n단일\n당일 호출 시점까지\n/stock/m002/tick_info\n/stock/m004/tick_info\ntrade_index\n\n\n일중(10초)\n단일\n당일 호출 시점까지\n/stock/m002/intra_info\n/stock/m004/intra_info\nintra_index\n\n\n일중(분)\n단일\n과거 일자별\n/stock/m002/intra_date\n/stock/m004/intra_date\nintra_index\n\n\n일별\n단일\n과거 일자별\n/stock/m002/hist_info\n/stock/m004/hist_info\ndaily_index\n\n\n일별 투자자\n단일\n과거 일자별\n/stock/m002/invest_hist_info\n/stock/m004/invest_hist_info\ndaily_investor_index"
+  },
+  {
+    "objectID": "posts/0009_api_index/index.html#업종지수-관련-api의-구성",
+    "href": "posts/0009_api_index/index.html#업종지수-관련-api의-구성",
+    "title": "CHECK-API 목록 : 업종/지수 정보",
+    "section": "",
+    "text": "업종/지수 관련 API는 크게 다음과 같이 구성됩니다.\n\n주식관련 정보는 크게 나누어 종목 정보와 지수/업종 정보로 나누어 제공합니다. 여기에서는 업종/지수 정보에 대해 설명하며 업종/지수 정보는 별도의 페이지에서 설명합니다.\n업종/지수 정보는 유가증권시장 업종/지수과 코스닥시장 업종/지수에 대한 정보는 각각 별도의 API로 제공합니다.\nkquant 패키지의 일부 함수는 사용자 편의를 위해 유가증권시장 업종/지수와 코스닥시장 업종/지수에 대한 정보를 동일한 함수로 제공하며 함수 내부에서 시장을 스스로 구분하여 해당하는 API를 호출합니다.\nkquant 패키지는 업종/지수 시장 구분 이외에도 사용자 편의를 위해 유사한 복수의 API를 하나의 함수로 인수를 달리하여 구할 수 있도록 제공하는 경우가 있습니다.\nkquant 패키지는 현재 개발 중인 베타 버전으로 모든 CHECK-API 정보를 제공하지 않을 수 있습니다. 향후 모든 CHECK-API 정보를 사용할 수 있도록 지속적으로 개발중입니다.\nkquant 패키지의 출력은 사용자 편의를 위해 원래 CHECK-API와 출력 필드의 구성 및 데이터 타입을 다르게 제공할 수 있습니다. 설명서를 읽고 사용에 주의하시기 바랍니다."
+  },
+  {
+    "objectID": "posts/0009_api_index/index.html#카테고리",
+    "href": "posts/0009_api_index/index.html#카테고리",
+    "title": "CHECK-API 목록 : 업종/지수 정보",
+    "section": "",
+    "text": "업종/지수에 대해 다음과 같은 카테고리의 정보를 제공합니다.\n\n\n\n\n\n\n\n구분\n제공 정보\n\n\n\n\n코드 정보\n업종/지수별 코드 및 업종/지수명\n\n\n기본 정보\n단일 업종/지수에 대해 호출 시점의 당일 시가/고가/저가/현재가, 거래량, 거래 대금, 등락 등의 정보\n\n\n일중 정보\n일자별 1분/10초/1초 간격 시가/고가/저가/종가 등의 정보 (10초/1초 정보는 호출 당일만 제공)\n\n\n일별 정보\n일자별 시가/고가/저가/현재가(종가), 거래량, 거래 대금, 시가총액, 상장 주식수 등의 정보\n\n\n일별 투자자 정보\n업종/지수별 과거 일자별 투자자 매매 정보"
+  },
+  {
+    "objectID": "posts/0009_api_index/index.html#api-url-및-kquant-함수",
+    "href": "posts/0009_api_index/index.html#api-url-및-kquant-함수",
+    "title": "CHECK-API 목록 : 업종/지수 정보",
+    "section": "",
+    "text": "정보의 시점이나 시장 등에 따른 세부 API URL 및 kquant 함수는 다음과 같습니다.\n\n\n\n\n\n\n\n\n\n\n\n\n구분\n업종/지수\n시점\n유가증권시장 API URL\n코스닥시장 API URL\nkquant 함수\n\n\n\n\n코드\n전종목\n호출 시점\n/stock/m002/code_info\n/stock/m004/code_info\nsymbol_index\n\n\n기본\n단일\n호출 시점\n/stock/m002/basic_info\n/stock/m004/basic_info\ninfo_basic_index\n\n\n체결\n단일\n당일 호출 시점까지\n/stock/m002/tick_info\n/stock/m004/tick_info\ntrade_index\n\n\n일중(10초)\n단일\n당일 호출 시점까지\n/stock/m002/intra_info\n/stock/m004/intra_info\nintra_index\n\n\n일중(분)\n단일\n과거 일자별\n/stock/m002/intra_date\n/stock/m004/intra_date\nintra_index\n\n\n일별\n단일\n과거 일자별\n/stock/m002/hist_info\n/stock/m004/hist_info\ndaily_index\n\n\n일별 투자자\n단일\n과거 일자별\n/stock/m002/invest_hist_info\n/stock/m004/invest_hist_info\ndaily_investor_index"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html",
+    "href": "posts/0005_check_tutorial1/index.html",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "본 글에서는 파이썬 언어로 CHECK-API를 호출하고 사용하는 방법을 설명합니다.\n\n\n여기에서는 컴퓨터에 이미 파이썬 배포판과 주피터랩이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n파이썬 패키지의 설치 및 관리 방법에 대해서는 다음 블로그 글을 참고해 주세요.\n\n환경 구축 2 : 파이썬 패키지 설치\n\n주피터랩이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 3 : 주피터랩 설치 및 사용\n\n본 설명글은 주피터랩에서 노트북으로 진행합니다.\n\n\n\n파이썬으로 CHECK-API를 호출하여 사용하기 위해서는 requests 파이썬 패키지가 필요합니다. requests 패키지는 명령 프롬프트에서 다음과 같이 pip 명령으로 설치할 수 있습니다.\npip install requests\n\n\n\nCHECK-API를 호출하기 위해서는 CHECK-API 아이디와 인증키가 필요합니다. CHECK-API 서비스를 신청한 고객은 CHECK 단말기에서 아이디와 인증키를 확인할 수 있습니다. 자세한 방법은 CHECK-API 공식 홈페이지를 참고하시면 됩니다.\n\nhttps://checkapi.koscom.co.kr/intro/introhome\n\n본 설명글에서는 확인한 아이디 및 인증키를 다음과 같이 변수에 넣어 사용합니다. 본 예제 코드는 파이썬 코드로 아이디 및 인증키의 값은 가상의 코드입니다. 실제 값은 사용자마다 다릅니다.\n코드 셀 1 이 코드를 주피터랩에서 실행합니다.\n\n# 코드 셀 1 (이 코드를 주피터랩에서 실행합니다.)\n\n1CHECK_API_ID = \"id_xxxxxxx\"\n2CHECK_API_KEY = \"key_xxxxxxx\"\n\n\n1\n\nCHECK-API 아이디 값을 문자열로 저장\n\n2\n\nCHECK-API 인증키 값을 문자열로 저장\n\n\n\n\n\n\n\n우선 CHECK-API 공식 홈페이지에서 사용하고자 하는 API의 명세(specification)를 확인합니다. API 명세는 다음과 같은 사항으로 구성되어 있습니다.\n\n호출 명세 (Request)\n\n호출 주소 (URL)\n\n호스트 주소 (HOST URL)\nAPI 주소 (API URL)\n\n인수 (Parameter)\n\n결과 명세 (Response)\n\n호출 결과\n데이터 필드 (Data Set)\n오류 메시지 (Error Message)\n\n\n예를 들어 주식종목의 코드정보를 호출하는 API의 명세는 다음 CHECK-API 공식홈페이지에 나와있습니다.\n\nhttps://checkapi.koscom.co.kr/stock/m001code\n\n주식종목 코드정보 API의 호출 명세를 보여주는 화면은 다음과 같습니다.\n\n\n\n그림 1: 주식종목 코드정보 API의 호출 명세\n\n\n주식종목 코드정보 API의 결과 명세를 보여주는 화면은 다음과 같습니다.\n\n\n\n그림 2: 주식종목 코드정보 API의 결과 명세\n\n\n\n\n\n우선 API 명세 화면에서 보여주는 해당 API의 호출정보를 다음과 같이 파이썬 코드로 저장합니다.\n코드 셀 2\n\n# 코드 셀 2\n\n1host_url = \"https://checkapi.koscom.co.kr\"\n2api_url = \"/stock/m001/code_info\"\npayload = {\n    \"cust_id\": CHECK_API_ID,\n    \"auth_key\": CHECK_API_KEY,\n3}\n\n\n1\n\n호스트 주소를 문자열로 저장\n\n2\n\nAPI 주소를 문자열로 저장\n\n3\n\n인수를 딕셔너리로 저장\n\n\n\n\n저장된 호출정보를 기반으로 requests 패키지의 POST 호출 기능을 사용하여 다음과 같이 API 호출을 할 수 있습니다.\n코드 셀 3\n\n1from requests import post\n\n2r = post(host_url + api_url, data=payload)\n\n\n1\n\nrequests 패키지에서 post 함수 임포트\n\n2\n\nAPI를 호출하여 결과를 변수 r에 넣음\n\n\n\n\n\n\n\n호출결과는 Response 형식으로 저장되며 status_code 속성으로 HTTP 호출결과를 볼 수 있습니다. status_code 속성이 200인 경우 호출 자체는 정상적으로 이루어진 경우입니다.\n코드 셀 4\n\ntype(r)\n\nrequests.models.Response\n\n\n코드 셀 5\n\nr.status_code\n\n200\n\n\n실제 데이터는 Response 객체의 json() 메서드를 호출하여 얻을 수 있습니다. json() 메서드는 success, results 키를 가지는 딕셔너리 객체입니다.\n\nsuccess: 데이터가 정상적으로 반환되었는지 여부. CHECK-API 아이디/인증키가 맞지 않거나 기타 올바른 인수를 받지 못하여 정상적인 results 값이 없는 경우 또는 해당하는 데이터가 존재하지 않는 경우 False 값을 반환합니다.\nresults: 딕셔너리 형태의 데이터 셋\n\n코드 셀 6\n\ndata = r.json()\n\n코드 셀 7\n\ndata.keys()\n\ndict_keys(['success', 'results'])\n\n\n코드 셀 8\n\ndata[\"success\"]\n\nTrue\n\n\njson 데이터의 results 값에 API 결과 명세에 따른 실제 데이터 셋이 반환됩니다. 대부분의 경우 딕셔너리의 리스트(list of dictionary) 형식입니다.\n예제의 주식종목 코드정보의 경우 전종목의 코드정보가 반환되므로 일부 데이터만 살펴보면 다음과 같습니다.\n코드 셀 9\n\nresults = data[\"results\"]\n\nresults[:5]\n\n[{'F16012': 'KR7000020008',\n  'F16013': '000020',\n  'F16002': '동화약품',\n  'F16004': 'DongwhaPharm',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000040006',\n  'F16013': '000040',\n  'F16002': 'KR모터스',\n  'F16004': 'KR MOTORS',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000050005',\n  'F16013': '000050',\n  'F16002': '경방',\n  'F16004': 'Kyungbang',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000070003',\n  'F16013': '000070',\n  'F16002': '삼양홀딩스',\n  'F16004': 'SAMYANGHOLDINGS',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000071001',\n  'F16013': '000075',\n  'F16002': '삼양홀딩스우',\n  'F16004': 'SAMYANGHOLDINGS(1P)',\n  'F34501': 'ST',\n  'F18070': 0}]\n\n\n\n\n\n다음과 같은 경우에는 API 호출로 올바른 데이터를 얻지 못할 수 있습니다.\n\n호출 URL이 잘못된 경우\n인수가 잘못된 경우\n\n\n\nAPI 호출 URL이 잘못되어 API 호출 자체가 실패한 경우에는 반환된 status_code가 200이 아닌 값을 가집니다.\n코드 셀 10\n\n1api_url = \"/stock/m001/codeinfo\"\n\nr = post(host_url + api_url, data=payload)\n\nr.status_code\n\n\n1\n\n올바른 URL이 code_info인데 잘못하여 codeinfo로 호출한 경우\n\n\n\n\n404\n\n\n\n\n\n정상적으로 API 호출은 되었으나 인수가 잘못된 경우에는 status_code는 200 정상 코드가 나오지만 json 데이터의 success 필드의 값이 False가 나옵니다. 또한 json 데이터에 results 필드가 존재하지 않습니다.\n코드 셀 11\n\n1api_url = \"/stock/m001/code_info\"\npayload = {\n    \"cust_id\": \"wrong_id\",\n    \"auth_key\": \"wrong_key\",\n2}\n\nr = post(host_url + api_url, data=payload)\n\nprint(r.status_code)\nprint(r.json()[\"success\"])\n\n\n1\n\n올바른 URL로 호출\n\n2\n\n아이디와 인증키 값이 잘못됨\n\n\n\n\n200\nFalse\n\n\n코드 셀 12\n\nr.json()[\"results\"]\n\nKeyError: 'results'"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#준비사항",
+    "href": "posts/0005_check_tutorial1/index.html#준비사항",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "여기에서는 컴퓨터에 이미 파이썬 배포판과 주피터랩이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n파이썬 패키지의 설치 및 관리 방법에 대해서는 다음 블로그 글을 참고해 주세요.\n\n환경 구축 2 : 파이썬 패키지 설치\n\n주피터랩이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 3 : 주피터랩 설치 및 사용\n\n본 설명글은 주피터랩에서 노트북으로 진행합니다."
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#requests-패키지-설치",
+    "href": "posts/0005_check_tutorial1/index.html#requests-패키지-설치",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "파이썬으로 CHECK-API를 호출하여 사용하기 위해서는 requests 파이썬 패키지가 필요합니다. requests 패키지는 명령 프롬프트에서 다음과 같이 pip 명령으로 설치할 수 있습니다.\npip install requests"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#check-api-아이디-및-인증키-확인",
+    "href": "posts/0005_check_tutorial1/index.html#check-api-아이디-및-인증키-확인",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "CHECK-API를 호출하기 위해서는 CHECK-API 아이디와 인증키가 필요합니다. CHECK-API 서비스를 신청한 고객은 CHECK 단말기에서 아이디와 인증키를 확인할 수 있습니다. 자세한 방법은 CHECK-API 공식 홈페이지를 참고하시면 됩니다.\n\nhttps://checkapi.koscom.co.kr/intro/introhome\n\n본 설명글에서는 확인한 아이디 및 인증키를 다음과 같이 변수에 넣어 사용합니다. 본 예제 코드는 파이썬 코드로 아이디 및 인증키의 값은 가상의 코드입니다. 실제 값은 사용자마다 다릅니다.\n코드 셀 1 이 코드를 주피터랩에서 실행합니다.\n\n# 코드 셀 1 (이 코드를 주피터랩에서 실행합니다.)\n\n1CHECK_API_ID = \"id_xxxxxxx\"\n2CHECK_API_KEY = \"key_xxxxxxx\"\n\n\n1\n\nCHECK-API 아이디 값을 문자열로 저장\n\n2\n\nCHECK-API 인증키 값을 문자열로 저장"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#사용하고자-하는-api의-명세-확인",
+    "href": "posts/0005_check_tutorial1/index.html#사용하고자-하는-api의-명세-확인",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "우선 CHECK-API 공식 홈페이지에서 사용하고자 하는 API의 명세(specification)를 확인합니다. API 명세는 다음과 같은 사항으로 구성되어 있습니다.\n\n호출 명세 (Request)\n\n호출 주소 (URL)\n\n호스트 주소 (HOST URL)\nAPI 주소 (API URL)\n\n인수 (Parameter)\n\n결과 명세 (Response)\n\n호출 결과\n데이터 필드 (Data Set)\n오류 메시지 (Error Message)\n\n\n예를 들어 주식종목의 코드정보를 호출하는 API의 명세는 다음 CHECK-API 공식홈페이지에 나와있습니다.\n\nhttps://checkapi.koscom.co.kr/stock/m001code\n\n주식종목 코드정보 API의 호출 명세를 보여주는 화면은 다음과 같습니다.\n\n\n\n그림 1: 주식종목 코드정보 API의 호출 명세\n\n\n주식종목 코드정보 API의 결과 명세를 보여주는 화면은 다음과 같습니다.\n\n\n\n그림 2: 주식종목 코드정보 API의 결과 명세"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#api-호출",
+    "href": "posts/0005_check_tutorial1/index.html#api-호출",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "우선 API 명세 화면에서 보여주는 해당 API의 호출정보를 다음과 같이 파이썬 코드로 저장합니다.\n코드 셀 2\n\n# 코드 셀 2\n\n1host_url = \"https://checkapi.koscom.co.kr\"\n2api_url = \"/stock/m001/code_info\"\npayload = {\n    \"cust_id\": CHECK_API_ID,\n    \"auth_key\": CHECK_API_KEY,\n3}\n\n\n1\n\n호스트 주소를 문자열로 저장\n\n2\n\nAPI 주소를 문자열로 저장\n\n3\n\n인수를 딕셔너리로 저장\n\n\n\n\n저장된 호출정보를 기반으로 requests 패키지의 POST 호출 기능을 사용하여 다음과 같이 API 호출을 할 수 있습니다.\n코드 셀 3\n\n1from requests import post\n\n2r = post(host_url + api_url, data=payload)\n\n\n1\n\nrequests 패키지에서 post 함수 임포트\n\n2\n\nAPI를 호출하여 결과를 변수 r에 넣음"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#호출-결과",
+    "href": "posts/0005_check_tutorial1/index.html#호출-결과",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "호출결과는 Response 형식으로 저장되며 status_code 속성으로 HTTP 호출결과를 볼 수 있습니다. status_code 속성이 200인 경우 호출 자체는 정상적으로 이루어진 경우입니다.\n코드 셀 4\n\ntype(r)\n\nrequests.models.Response\n\n\n코드 셀 5\n\nr.status_code\n\n200\n\n\n실제 데이터는 Response 객체의 json() 메서드를 호출하여 얻을 수 있습니다. json() 메서드는 success, results 키를 가지는 딕셔너리 객체입니다.\n\nsuccess: 데이터가 정상적으로 반환되었는지 여부. CHECK-API 아이디/인증키가 맞지 않거나 기타 올바른 인수를 받지 못하여 정상적인 results 값이 없는 경우 또는 해당하는 데이터가 존재하지 않는 경우 False 값을 반환합니다.\nresults: 딕셔너리 형태의 데이터 셋\n\n코드 셀 6\n\ndata = r.json()\n\n코드 셀 7\n\ndata.keys()\n\ndict_keys(['success', 'results'])\n\n\n코드 셀 8\n\ndata[\"success\"]\n\nTrue\n\n\njson 데이터의 results 값에 API 결과 명세에 따른 실제 데이터 셋이 반환됩니다. 대부분의 경우 딕셔너리의 리스트(list of dictionary) 형식입니다.\n예제의 주식종목 코드정보의 경우 전종목의 코드정보가 반환되므로 일부 데이터만 살펴보면 다음과 같습니다.\n코드 셀 9\n\nresults = data[\"results\"]\n\nresults[:5]\n\n[{'F16012': 'KR7000020008',\n  'F16013': '000020',\n  'F16002': '동화약품',\n  'F16004': 'DongwhaPharm',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000040006',\n  'F16013': '000040',\n  'F16002': 'KR모터스',\n  'F16004': 'KR MOTORS',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000050005',\n  'F16013': '000050',\n  'F16002': '경방',\n  'F16004': 'Kyungbang',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000070003',\n  'F16013': '000070',\n  'F16002': '삼양홀딩스',\n  'F16004': 'SAMYANGHOLDINGS',\n  'F34501': 'ST',\n  'F18070': 0},\n {'F16012': 'KR7000071001',\n  'F16013': '000075',\n  'F16002': '삼양홀딩스우',\n  'F16004': 'SAMYANGHOLDINGS(1P)',\n  'F34501': 'ST',\n  'F18070': 0}]"
+  },
+  {
+    "objectID": "posts/0005_check_tutorial1/index.html#잘못된-호출의-경우",
+    "href": "posts/0005_check_tutorial1/index.html#잘못된-호출의-경우",
+    "title": "CHECK-API 사용법 1",
+    "section": "",
+    "text": "다음과 같은 경우에는 API 호출로 올바른 데이터를 얻지 못할 수 있습니다.\n\n호출 URL이 잘못된 경우\n인수가 잘못된 경우\n\n\n\nAPI 호출 URL이 잘못되어 API 호출 자체가 실패한 경우에는 반환된 status_code가 200이 아닌 값을 가집니다.\n코드 셀 10\n\n1api_url = \"/stock/m001/codeinfo\"\n\nr = post(host_url + api_url, data=payload)\n\nr.status_code\n\n\n1\n\n올바른 URL이 code_info인데 잘못하여 codeinfo로 호출한 경우\n\n\n\n\n404\n\n\n\n\n\n정상적으로 API 호출은 되었으나 인수가 잘못된 경우에는 status_code는 200 정상 코드가 나오지만 json 데이터의 success 필드의 값이 False가 나옵니다. 또한 json 데이터에 results 필드가 존재하지 않습니다.\n코드 셀 11\n\n1api_url = \"/stock/m001/code_info\"\npayload = {\n    \"cust_id\": \"wrong_id\",\n    \"auth_key\": \"wrong_key\",\n2}\n\nr = post(host_url + api_url, data=payload)\n\nprint(r.status_code)\nprint(r.json()[\"success\"])\n\n\n1\n\n올바른 URL로 호출\n\n2\n\n아이디와 인증키 값이 잘못됨\n\n\n\n\n200\nFalse\n\n\n코드 셀 12\n\nr.json()[\"results\"]\n\nKeyError: 'results'"
+  },
+  {
+    "objectID": "posts/0007_kquant_intro/index.html",
+    "href": "posts/0007_kquant_intro/index.html",
+    "title": "kquant 패키지 소개",
+    "section": "",
+    "text": "본 글에서는 파이썬에서 CHECK-API 사용을 쉽게 할 수 있도록 도와주는 kquant 패키지를 소개합니다.\n\n\n여기에서는 컴퓨터에 이미 파이썬 배포판과 주피터랩이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n파이썬 패키지의 설치 및 관리 방법에 대해서는 다음 블로그 글을 참고해 주세요.\n\n환경 구축 2 : 파이썬 패키지 설치\n\n주피터랩이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 3 : 주피터랩 설치 및 사용\n\n본 설명글은 주피터랩에서 노트북으로 진행합니다."
+  },
+  {
+    "objectID": "posts/0007_kquant_intro/index.html#준비사항",
+    "href": "posts/0007_kquant_intro/index.html#준비사항",
+    "title": "kquant 패키지 소개",
+    "section": "",
+    "text": "여기에서는 컴퓨터에 이미 파이썬 배포판과 주피터랩이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n파이썬 패키지의 설치 및 관리 방법에 대해서는 다음 블로그 글을 참고해 주세요.\n\n환경 구축 2 : 파이썬 패키지 설치\n\n주피터랩이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 3 : 주피터랩 설치 및 사용\n\n본 설명글은 주피터랩에서 노트북으로 진행합니다."
+  },
+  {
+    "objectID": "posts/0007_kquant_intro/index.html#kquant-패키지-설치-방법",
+    "href": "posts/0007_kquant_intro/index.html#kquant-패키지-설치-방법",
+    "title": "kquant 패키지 소개",
+    "section": "kquant 패키지 설치 방법",
+    "text": "kquant 패키지 설치 방법\nkquant 패키지는 pip install 명령으로 설치할 수 있습니다.\npip install kquant\n설치 후에는 파이썬을 실행하여 다음과 같이 kquant 패키지가 정상적으로 임포트되는지 확인합니다.\n$ python\n&gt;&gt;&gt; import kquant as kq\n&gt;&gt;&gt; kq.__version__\n'0.3.4'"
+  },
+  {
+    "objectID": "posts/0007_kquant_intro/index.html#check-api-key-설정-방법",
+    "href": "posts/0007_kquant_intro/index.html#check-api-key-설정-방법",
+    "title": "kquant 패키지 소개",
+    "section": "CHECK-API KEY 설정 방법",
+    "text": "CHECK-API KEY 설정 방법\nkquant 패키지는 CHECK-API를 사용하여 금융 데이터를 입수하므로 사용전에 미리 CHECK-API ID와 KEY를 다음과 같이 설정하여야 합니다.\nimport kquant as kq\n\nkq.set_api(\"발급받은 API ID 문자열\", \"발급받은 API KEY 문자열\")\nset_api 함수로 API ID 및 API KEY를 설정하면 설정 데이터는 사용자의 홈 디렉토리 아래의 .kquant 디렉토리 상의 credential 파일에 다음과 같은 형식으로 저장됩니다.\nAPI_ID = \"발급받은 API ID 문자열\"\nAPI_KEY = \"발급받은 API KEY 문자열\"\n따라서 한 번 set_api 함수로 API 정보를 설정하면 이 파일이 삭제되거나 손상되지 않는 한 다시 set_api 함수로 API 정보를 설정할 필요는 없습니다."
+  },
+  {
+    "objectID": "posts/0007_kquant_intro/index.html#api-참조문서",
+    "href": "posts/0007_kquant_intro/index.html#api-참조문서",
+    "title": "kquant 패키지 소개",
+    "section": "API 참조문서",
+    "text": "API 참조문서\n\nkquant 패키지의 모든 모듈과 함수에 대한 자세한 설명을 포함하는 API 참조문서는 다음 웹페이지에서 제공합니다.\n\nhttps://koscom.github.io/kquant/"
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html",
+    "href": "posts/0004_env_install_3/index.html",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "본 글에서는 CHECK-API를 활용하기 위해 필요한 주피터랩(JupyterLab) 패키지를 설치하고 사용하는 법을 설명합니다.\n\n\n여기에서는 컴퓨터에 이미 Mambaforge 기반의 파이썬 배포판이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n또한 이 글에서 설명하는 파이썬 명령을 사용하려면 윈도우 실행 메뉴에서 “Miniforge3” &gt; “Miniforge Prompt” 메뉴를 선택하여 Miniforge 프롬프트를 시작해야 합니다.\n\n\n\n주피터랩(JupyterLab)은 주피터 노트북(Jupyter Notebook)이라는 패키지의 발전된 버전으로 파이썬 코드 실행과 문서작성을 동시에 할 수 있는 노트북 형태의 웹브라우저 환경을 제공하는 패키지로 다음과 같은 특징을 가집니다.\n\n웹화면에서 파이썬 코드를 작성하고 실행된 코드의 결과는 해당 웹화면에서 바로 볼 수 있습니다.\n상호작용(interaction)이 가능한 웹 시각화를 쉽게 구현할 수 있습니다.\n하나의 노트북 내에 코드 뿐 아니라 마크다운 형식의 문서를 작성할 수 있습니다.\n\n주피터랩에 대한 자세한 설명은 공식 웹사이트를 참조하시기 바랍니다.\n\nhttps://jupyterlab.readthedocs.io/en/latest/\n\n금융 데이터 분석의 경우 다양한 분석코드를 수시로 실행하여 결과를 빠르게 검토하고 그 결과를 공유해야 하는 경우가 많으므로 다른 프로그램 개발과정과 달리 짧은 코드를 쉽게 실행하고 결과를 웹화면에서 바로 시각화하여 볼 수 있는 주피터 노트북의 사용이 유리하므로 설치를 권장드립니다.\n본 블로그에서는 주피터랩을 기반으로 CHECK-API를 사용한 금융 데이터 분석의 예제를 소개하므로 주피터랩을 설치하면 본 블로그의 예제를 바로 실행할 수 있습니다.\n\n\n\n그림 1: 주피터랩 실행 화면\n\n\n\n\n\n주피터랩 패키지는 다음과 같이 pip 명령으로 설치할 수 있습니다.\npip install jupyterlab\npip 명령의 사용 방법에 대해서는 다음 블로그 글을 참고해 주세요.\n\n환경 구축 2 : 파이썬 패키지 설치\n\n\n\n\n주피터랩은 웹기반 애플리케이션이므로 주피터랩을 사용하기 위해서는 먼저 웹서버 역할을 하는 주피터랩 서버를 실행해야 합니다.\n주피터랩 서버를 실행하려면 파이썬 실행이 가능한 Miniforge 프롬프트나 터미널 환경을 열고 작업 디렉토리로 이동한 다음 다음 명령을 실행합니다.\njupyter lab\n정상적으로 실행된다면 다음과 같은 메세지가 나옵니다. (세부적인 사항은 본 예제의 결과와 다를 수 있습니다.)\n...(생략)...\n\n[I 2023-12-12 14:25:09.870 ServerApp] Jupyter Server 2.12.1 is running at:\n[I 2023-12-12 14:25:09.870 ServerApp] http://localhost:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n[I 2023-12-12 14:25:09.886 ServerApp]     http://127.0.0.1:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n[I 2023-12-12 14:25:09.886 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).\n[C 2023-12-12 14:25:09.964 ServerApp]\n\n    To access the server, open this file in a browser:\n        file:///C:/Users/KOSCOM/AppData/Roaming/jupyter/runtime/jpserver-276-open.html\n    Or copy and paste one of these URLs:\n        http://localhost:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n        http://127.0.0.1:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n\n...(생략)...\n마지막 행에 보이는 것이 주피터랩을 실행할 수 있는 URL 주소입니다. 이 주소를 복사하여 웹브라우저의 주소창에 넣으면 웹프라우저에 다음과 같은 주피터랩 최초 실행 화면이 나옵니다.\n\n\n\n그림 2: 주피터랩 최초 실행 화면\n\n\n\n\n\n\n\n주피터랩에서 코드를 실행하거나 문서를 작성하러면 노트북 파일을 생성해야 합니다.\n주피터랩 화면의 메뉴에서\n\n“File” &gt; “New” &gt; “Notebook”\n\n메뉴를 선택하거나 화면상에서\n\n“Notebook” &gt; “Python 3 (ipykernel)”\n\n이라고 쓰인 버튼을 클릭하면 다음 화면과 같이 신규 노트북이 생성됩니다.\n\n\n\n그림 3: 주피터랩 노트북 생성 화면\n\n\n\n\n\n노트북화면의 셀(cell)에서 파이썬 코드를 입력하고 Shift 버튼과 Enter 버튼을 동시에 누르면 코드가 실행되고 샐의 마지막 행에 있는 파이썬 변수의 값이 표시됩니다. Enter 버튼만 누르는 경우에는 코드 입력 라인이 바뀌뿐 코드가 실행되지는 않습니다.\n예를 들어 다음과 같이 입력하면 값이 0으로 채워진 Pandas 데이터프레임을 생성하고 그 결과를 보여줍니다.\n\nimport numpy as np\nimport pandas as pd\n\ndf = pd.DataFrame(np.zeros(5))\n\ndf\n\n\n\n\n\n\n\n\n\n0\n\n\n\n\n0\n0.0\n\n\n1\n0.0\n\n\n2\n0.0\n\n\n3\n0.0\n\n\n4\n0.0\n\n\n\n\n\n\n\n\n\n\n\n노트북에 코드가 아닌 문서를 넣기 위헤서는 셀을 “Code” 유형에서 “Markdown” 유형으로 변경해야 합니다. 셀 유형을 변경하려면 유형을 변경할 셀을 선택한 후 노트북 상단 버튼에서 “Code”라고 표시되어 있는 버튼을 클릭하여 “Markdown”으로 바꿉니다.\n\n\n\n그림 4: 주피터랩 노트북에서 셀 유형 변경\n\n\n셀 유형이 “Markdown”으로 바뀌면 Markdown 형식으로 문서를 작성할 수 있습니다. Markdown 형식은 간단한 문서작성을 위한 문법으로 사용법은 다음 웹사이트를 참조하시면 됩니다.\n\nhttps://ko.wikipedia.org/wiki/마크다운\n\n\n\n\n그림 5: 주피터랩 노트북에서 마크다운 문서 작성\n\n\n마크다운 문서를 작성한 후에 코드 실행의 경우와 마찬가지로 Shift + Enter 버튼을 누르면 원하는 형식으로 표시됩니다.\n\n\n\n그림 6: 주피터랩 노트북에서 마크다운 문서 표시\n\n\n\n\n\n노트북을 저장하려면 상단 메뉴에서\n\n“File” &gt; “Save Notebook”\n\n메뉴를 선택합니다.\n신규로 생성된 노트북의 경우 다음과 같이 파일 이름을 변경하는 다이얼로그가 나타납니다. 이 다이얼로그에서 원하는 이름으로 변경할 수 있습니다.\n\n\n\n그림 7: 주피터랩 노트북 저장\n\n\n\n\n\n완성된 노트북을 종료하기 위해서는 상단 메뉴에서\n\n“File” &gt; “Close and Shut Down Notebook”\n\n메뉴를 선택합니다.\n\n\n\n\n주피터랩 사용이 완전히 끝난 후에는 주피터랩 웹 서버를 종료할 수 있습니다. 서버를 종료하려면 주피터랩 서버를 가동시킨 터미널 화면을 종료하거나 터미널에서 Control + C 버튼을 두번 연속 누르면 됩니다."
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html#준비사항",
+    "href": "posts/0004_env_install_3/index.html#준비사항",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "여기에서는 컴퓨터에 이미 Mambaforge 기반의 파이썬 배포판이 설치되어 있다고 가정합니다.\n만약 파이썬 배포판이 설치되어 있지 않은 경우에는 다음 블로그 글을 참고하여 설치해 주세요.\n\n환경 구축 1 : 파이썬 설치\n\n또한 이 글에서 설명하는 파이썬 명령을 사용하려면 윈도우 실행 메뉴에서 “Miniforge3” &gt; “Miniforge Prompt” 메뉴를 선택하여 Miniforge 프롬프트를 시작해야 합니다."
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html#주피터랩jupyterlab-패키지-소개",
+    "href": "posts/0004_env_install_3/index.html#주피터랩jupyterlab-패키지-소개",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "주피터랩(JupyterLab)은 주피터 노트북(Jupyter Notebook)이라는 패키지의 발전된 버전으로 파이썬 코드 실행과 문서작성을 동시에 할 수 있는 노트북 형태의 웹브라우저 환경을 제공하는 패키지로 다음과 같은 특징을 가집니다.\n\n웹화면에서 파이썬 코드를 작성하고 실행된 코드의 결과는 해당 웹화면에서 바로 볼 수 있습니다.\n상호작용(interaction)이 가능한 웹 시각화를 쉽게 구현할 수 있습니다.\n하나의 노트북 내에 코드 뿐 아니라 마크다운 형식의 문서를 작성할 수 있습니다.\n\n주피터랩에 대한 자세한 설명은 공식 웹사이트를 참조하시기 바랍니다.\n\nhttps://jupyterlab.readthedocs.io/en/latest/\n\n금융 데이터 분석의 경우 다양한 분석코드를 수시로 실행하여 결과를 빠르게 검토하고 그 결과를 공유해야 하는 경우가 많으므로 다른 프로그램 개발과정과 달리 짧은 코드를 쉽게 실행하고 결과를 웹화면에서 바로 시각화하여 볼 수 있는 주피터 노트북의 사용이 유리하므로 설치를 권장드립니다.\n본 블로그에서는 주피터랩을 기반으로 CHECK-API를 사용한 금융 데이터 분석의 예제를 소개하므로 주피터랩을 설치하면 본 블로그의 예제를 바로 실행할 수 있습니다.\n\n\n\n그림 1: 주피터랩 실행 화면"
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html#주피터랩-설치",
+    "href": "posts/0004_env_install_3/index.html#주피터랩-설치",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "주피터랩 패키지는 다음과 같이 pip 명령으로 설치할 수 있습니다.\npip install jupyterlab\npip 명령의 사용 방법에 대해서는 다음 블로그 글을 참고해 주세요.\n\n환경 구축 2 : 파이썬 패키지 설치"
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html#주피터랩-서버-실행",
+    "href": "posts/0004_env_install_3/index.html#주피터랩-서버-실행",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "주피터랩은 웹기반 애플리케이션이므로 주피터랩을 사용하기 위해서는 먼저 웹서버 역할을 하는 주피터랩 서버를 실행해야 합니다.\n주피터랩 서버를 실행하려면 파이썬 실행이 가능한 Miniforge 프롬프트나 터미널 환경을 열고 작업 디렉토리로 이동한 다음 다음 명령을 실행합니다.\njupyter lab\n정상적으로 실행된다면 다음과 같은 메세지가 나옵니다. (세부적인 사항은 본 예제의 결과와 다를 수 있습니다.)\n...(생략)...\n\n[I 2023-12-12 14:25:09.870 ServerApp] Jupyter Server 2.12.1 is running at:\n[I 2023-12-12 14:25:09.870 ServerApp] http://localhost:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n[I 2023-12-12 14:25:09.886 ServerApp]     http://127.0.0.1:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n[I 2023-12-12 14:25:09.886 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).\n[C 2023-12-12 14:25:09.964 ServerApp]\n\n    To access the server, open this file in a browser:\n        file:///C:/Users/KOSCOM/AppData/Roaming/jupyter/runtime/jpserver-276-open.html\n    Or copy and paste one of these URLs:\n        http://localhost:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n        http://127.0.0.1:8888/lab?token=8248ef069e8f3c9eeb48c584bb54c4a0fa0b33af02a5fa83\n\n...(생략)...\n마지막 행에 보이는 것이 주피터랩을 실행할 수 있는 URL 주소입니다. 이 주소를 복사하여 웹브라우저의 주소창에 넣으면 웹프라우저에 다음과 같은 주피터랩 최초 실행 화면이 나옵니다.\n\n\n\n그림 2: 주피터랩 최초 실행 화면"
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html#주피터랩-사용",
+    "href": "posts/0004_env_install_3/index.html#주피터랩-사용",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "주피터랩에서 코드를 실행하거나 문서를 작성하러면 노트북 파일을 생성해야 합니다.\n주피터랩 화면의 메뉴에서\n\n“File” &gt; “New” &gt; “Notebook”\n\n메뉴를 선택하거나 화면상에서\n\n“Notebook” &gt; “Python 3 (ipykernel)”\n\n이라고 쓰인 버튼을 클릭하면 다음 화면과 같이 신규 노트북이 생성됩니다.\n\n\n\n그림 3: 주피터랩 노트북 생성 화면\n\n\n\n\n\n노트북화면의 셀(cell)에서 파이썬 코드를 입력하고 Shift 버튼과 Enter 버튼을 동시에 누르면 코드가 실행되고 샐의 마지막 행에 있는 파이썬 변수의 값이 표시됩니다. Enter 버튼만 누르는 경우에는 코드 입력 라인이 바뀌뿐 코드가 실행되지는 않습니다.\n예를 들어 다음과 같이 입력하면 값이 0으로 채워진 Pandas 데이터프레임을 생성하고 그 결과를 보여줍니다.\n\nimport numpy as np\nimport pandas as pd\n\ndf = pd.DataFrame(np.zeros(5))\n\ndf\n\n\n\n\n\n\n\n\n\n0\n\n\n\n\n0\n0.0\n\n\n1\n0.0\n\n\n2\n0.0\n\n\n3\n0.0\n\n\n4\n0.0\n\n\n\n\n\n\n\n\n\n\n\n노트북에 코드가 아닌 문서를 넣기 위헤서는 셀을 “Code” 유형에서 “Markdown” 유형으로 변경해야 합니다. 셀 유형을 변경하려면 유형을 변경할 셀을 선택한 후 노트북 상단 버튼에서 “Code”라고 표시되어 있는 버튼을 클릭하여 “Markdown”으로 바꿉니다.\n\n\n\n그림 4: 주피터랩 노트북에서 셀 유형 변경\n\n\n셀 유형이 “Markdown”으로 바뀌면 Markdown 형식으로 문서를 작성할 수 있습니다. Markdown 형식은 간단한 문서작성을 위한 문법으로 사용법은 다음 웹사이트를 참조하시면 됩니다.\n\nhttps://ko.wikipedia.org/wiki/마크다운\n\n\n\n\n그림 5: 주피터랩 노트북에서 마크다운 문서 작성\n\n\n마크다운 문서를 작성한 후에 코드 실행의 경우와 마찬가지로 Shift + Enter 버튼을 누르면 원하는 형식으로 표시됩니다.\n\n\n\n그림 6: 주피터랩 노트북에서 마크다운 문서 표시\n\n\n\n\n\n노트북을 저장하려면 상단 메뉴에서\n\n“File” &gt; “Save Notebook”\n\n메뉴를 선택합니다.\n신규로 생성된 노트북의 경우 다음과 같이 파일 이름을 변경하는 다이얼로그가 나타납니다. 이 다이얼로그에서 원하는 이름으로 변경할 수 있습니다.\n\n\n\n그림 7: 주피터랩 노트북 저장\n\n\n\n\n\n완성된 노트북을 종료하기 위해서는 상단 메뉴에서\n\n“File” &gt; “Close and Shut Down Notebook”\n\n메뉴를 선택합니다."
+  },
+  {
+    "objectID": "posts/0004_env_install_3/index.html#주피터랩-서버-종료",
+    "href": "posts/0004_env_install_3/index.html#주피터랩-서버-종료",
+    "title": "환경 구축 3 : 주피터랩 설치 및 사용",
+    "section": "",
+    "text": "주피터랩 사용이 완전히 끝난 후에는 주피터랩 웹 서버를 종료할 수 있습니다. 서버를 종료하려면 주피터랩 서버를 가동시킨 터미널 화면을 종료하거나 터미널에서 Control + C 버튼을 두번 연속 누르면 됩니다."
+  },
+  {
+    "objectID": "posts/0002_env_install_1/index.html",
+    "href": "posts/0002_env_install_1/index.html",
+    "title": "환경 구축 1 : 파이썬 설치",
+    "section": "",
+    "text": "코스콤 CHECK-API를 활용하기 위해 파이썬 언어 환경을 설치하는 방법을 설명합니다.\nCHECK-API 서비스는 일반적인 REST-API 서비스이므로 파이썬, 자바, 자바스크립트 등 어떠한 프로그래밍 언어로도 사용할 수 있습니다. 여기에서는 가장 쉽고 데이터 분석에 많이 쓰이는 파이썬 언어를 기준으로 설명합니다.\n파이썬 프로그래밍 언어로 CHECK-API를 활용하기 위해서는 다음과 같은 개발 환경 설치가 필요합니다.\n\n파이썬 언어 환경\n코드 개발 환경\n파이썬 패키지\n\n이 글에서는 전체 개발 환경 설치의 첫번째 단계로 파이썬 언어 환경의 설치에 대해 설명합니다.\n\n\n파이썬 언어를 사용하기 위해서는 일단 파이썬 언어 환경 배포판(distribution)을 설치해야 합니다. 현재 다양한 파이썬 언어 환경 배포판이 있습니다만 그 중 가장 많이 사용되고 기업체에서 상용으로 사용할 수 있는 miniforge를 추천합니다. miniforge는 널리 사용되는 상업용 파이썬 배포판인 Anaconda사의 배포판과 호환되는 파이썬 언어 환경 배포판입니다. miniforge는 Anaconda사의 배포판과 달리 기업체에서도 비용없이 사용할 수 있습니다.\nminiforge를 설치하기 위해서는 다음 홈페이지를 방문하여 보유한 운영체제에 맞는 설치 파일을 다운로드 받아야 합니다.\n\nminiforge: https://github.com/conda-forge/miniforge\n\n\n\n\n그림 1: Miniforge 홈페이지\n\n\n홈페이지의 아랫쪽에 다운로드를 위한 각 운영체제별 설치 파일 링크가 제공됩니다. 사용자의 운영체제에 맞는 파일을 다운로드 받습니다.\n\n\n\n그림 2: Miniforge 다운로드 화면\n\n\n\n\n\n윈도우 운영체제에서 Miniforge 설치 과정은 다음과 같습니다.\n\n다운로드 화면에서 “Miniforge3-Windows-x86_64.exe” 파일을 다운로드 받습니다.\n\n\n\n\n그림 3: Miniforge 설치 파일 다운로드\n\n\n\n다운로드 받은 파일을 더블 클릭하면 다음과 같이 설치 경고화면이 나옵니다. 이 때 “추가 정보” 링크를 클릭하면 설치를 진행할 수 있습니다.\n\n\n\n\n그림 4: 윈도우에서 Miniforge 실행파일 실행시 설치 경고 화면\n\n\n\n다음과 같이 “실행” 버튼이 나타나면 클릭하여 설치를 진행합니다.\n\n\n\n\n그림 5: 윈도우에서 Miniforge 설치 시작 화면\n\n\n\n다음은 설치 진행 화면입니다. 진행과정에서 특별한 수정이 필요하지 않다면 모두 “Next &gt;” 버튼을 눌러 통상적인 설치를 할 수 있습니다.\n\n\n\n\n그림 6: 윈도우에서 Miniforge 설치 진행 화면\n\n\n\n\n\n\n설치가 정상적으로 완료되면 좌측 하단 윈도우 로고를 클릭하여 나오는 메뉴화면에 “Miniforge3”가 추가되어 있는 것을 확인할 수 있습니다. “Miniforge3” &gt; “Miniforge Prompt” 메뉴를 클릭하면 파이썬 실행용 Miniforge 프롬프트를 가동합니다.\n\n\n\n\n그림 7: 윈도우에서 Miniforge 실행 메뉴\n\n\n\n다음 명령으로 파이썬 설치 경로를 확인합니다.\n\nwhere python\n설치 경로가 사용자 홈 디렉토리\\miniforge3\\python.exe인 경우 정상적으로 설치된 것입니다.\n만약 결과가 여러줄로 나오는 경우 이미 다른 종류의 파이썬 배포판이 설치 되어있는 것이며 정상적인 동작에는 영향을 미치 않으므로 무시해도 됩니다. 다만 사용자 홈 디렉토리\\miniforge3\\python.exe 설치 경로는 추후 개발 환경 설정에 필요하므로 메모해 두시는 것이 좋습니다.\n\n\n\n그림 8: 파이썬 경로 확인\n\n\n\npython 명령으로 파이썬 인터프리터를 시작할 수 있습니다. 파이썬 인터프리터를 종료할 때는 exit() 명령을 사용합니다.\n\n\n\n\n그림 9: 파이썬 실행\n\n\n\n\n\n만약 윈도우 환경에서 where python을 실행하였을 때 다음과 같은 항목이 나오면 “앱 실행 별칭” 설정이 되어 있는 경우입니다.\nC:\\Users\\사용자명\\AppData\\Local\\Microsoft\\windowsApps\\python.exe\n“앱 실행 별칭” 설정이 되어 있으면 파이썬 명령을 사용할 때 윈도우 스토어(Store) 화면이 뜨면서 별도의 파이썬 설치를 요구하기 때문에 필요가 없는 경우에는 “앱 실행 별칭” 설정을 끄는 것을 권장합니다. “앱 실행 별칭” 설정을 끄는 방법은 다음과 같습니다.\n\n좌측 하단의 윈도우 버튼을 클릭하여 “설정” 아이콘을 실행하거나 검색창에서 “설정”을 입력하여 설정화면을 실행합니다.\n\n\n\n\n그림 9: 설정 실행\n\n\n\n설정화면에서 “앱” 메뉴를 클릭하여 앱 설정 화면으로 들어갑니다.\n\n\n\n\n그림 10: 앱 설정 화면\n\n\n\n화면 중앙의 “앱 실행 별칭” 메뉴를 클릭하여 다음과 같은 화면이 나오면 python.exe, python3.exe, python3.7.exe 등의 항목에 대해 “끔”을 선택하면 됩니다.\n\n\n\n\n그림 11: 앱 실행 별칭 제거\n\n\n\n\n\nMiniforge 배포판을 설치한 직후에는 Miniforge 프롬프트에서만 파이썬 사용이 가능합니다.\nMiniforge 프롬프트 뿐 아니라 윈도우 기본 명령 프롬프트(cmd.exe)에서 파이썬을 사용하기 위해서는 추가 섦정이 필요합니다.\n\nMiniforge 프롬프트(명령 프롬프트가 아닙니다.)를 열고 다음과 같은 명령을 실행합니다.\n\nconda init cmd.exe\n\n\n\n그림 12: conda init 설정\n\n\n\n명령 프롬프트(Miniforge 프롬프트가 아닙니다.)를 열고 다음과 같은 명령을 실행합니다.\n\nconda activate\n화면의 프롬프트 앞에 (base)라는 글자가 나타나면 python 명령으로 파이썬을 실행할 수 있습니다.\n\n\n\n그림 13: conda activate 실행"
+  },
+  {
+    "objectID": "posts/0002_env_install_1/index.html#miniforge-배포판-다운로드",
+    "href": "posts/0002_env_install_1/index.html#miniforge-배포판-다운로드",
+    "title": "환경 구축 1 : 파이썬 설치",
+    "section": "",
+    "text": "파이썬 언어를 사용하기 위해서는 일단 파이썬 언어 환경 배포판(distribution)을 설치해야 합니다. 현재 다양한 파이썬 언어 환경 배포판이 있습니다만 그 중 가장 많이 사용되고 기업체에서 상용으로 사용할 수 있는 miniforge를 추천합니다. miniforge는 널리 사용되는 상업용 파이썬 배포판인 Anaconda사의 배포판과 호환되는 파이썬 언어 환경 배포판입니다. miniforge는 Anaconda사의 배포판과 달리 기업체에서도 비용없이 사용할 수 있습니다.\nminiforge를 설치하기 위해서는 다음 홈페이지를 방문하여 보유한 운영체제에 맞는 설치 파일을 다운로드 받아야 합니다.\n\nminiforge: https://github.com/conda-forge/miniforge\n\n\n\n\n그림 1: Miniforge 홈페이지\n\n\n홈페이지의 아랫쪽에 다운로드를 위한 각 운영체제별 설치 파일 링크가 제공됩니다. 사용자의 운영체제에 맞는 파일을 다운로드 받습니다.\n\n\n\n그림 2: Miniforge 다운로드 화면"
+  },
+  {
+    "objectID": "posts/0002_env_install_1/index.html#miniforge-배포판-설치",
+    "href": "posts/0002_env_install_1/index.html#miniforge-배포판-설치",
+    "title": "환경 구축 1 : 파이썬 설치",
+    "section": "",
+    "text": "윈도우 운영체제에서 Miniforge 설치 과정은 다음과 같습니다.\n\n다운로드 화면에서 “Miniforge3-Windows-x86_64.exe” 파일을 다운로드 받습니다.\n\n\n\n\n그림 3: Miniforge 설치 파일 다운로드\n\n\n\n다운로드 받은 파일을 더블 클릭하면 다음과 같이 설치 경고화면이 나옵니다. 이 때 “추가 정보” 링크를 클릭하면 설치를 진행할 수 있습니다.\n\n\n\n\n그림 4: 윈도우에서 Miniforge 실행파일 실행시 설치 경고 화면\n\n\n\n다음과 같이 “실행” 버튼이 나타나면 클릭하여 설치를 진행합니다.\n\n\n\n\n그림 5: 윈도우에서 Miniforge 설치 시작 화면\n\n\n\n다음은 설치 진행 화면입니다. 진행과정에서 특별한 수정이 필요하지 않다면 모두 “Next &gt;” 버튼을 눌러 통상적인 설치를 할 수 있습니다.\n\n\n\n\n그림 6: 윈도우에서 Miniforge 설치 진행 화면"
+  },
+  {
+    "objectID": "posts/0002_env_install_1/index.html#miniforge-프롬프트에서-파이썬-사용",
+    "href": "posts/0002_env_install_1/index.html#miniforge-프롬프트에서-파이썬-사용",
+    "title": "환경 구축 1 : 파이썬 설치",
+    "section": "",
+    "text": "설치가 정상적으로 완료되면 좌측 하단 윈도우 로고를 클릭하여 나오는 메뉴화면에 “Miniforge3”가 추가되어 있는 것을 확인할 수 있습니다. “Miniforge3” &gt; “Miniforge Prompt” 메뉴를 클릭하면 파이썬 실행용 Miniforge 프롬프트를 가동합니다.\n\n\n\n\n그림 7: 윈도우에서 Miniforge 실행 메뉴\n\n\n\n다음 명령으로 파이썬 설치 경로를 확인합니다.\n\nwhere python\n설치 경로가 사용자 홈 디렉토리\\miniforge3\\python.exe인 경우 정상적으로 설치된 것입니다.\n만약 결과가 여러줄로 나오는 경우 이미 다른 종류의 파이썬 배포판이 설치 되어있는 것이며 정상적인 동작에는 영향을 미치 않으므로 무시해도 됩니다. 다만 사용자 홈 디렉토리\\miniforge3\\python.exe 설치 경로는 추후 개발 환경 설정에 필요하므로 메모해 두시는 것이 좋습니다.\n\n\n\n그림 8: 파이썬 경로 확인\n\n\n\npython 명령으로 파이썬 인터프리터를 시작할 수 있습니다. 파이썬 인터프리터를 종료할 때는 exit() 명령을 사용합니다.\n\n\n\n\n그림 9: 파이썬 실행"
+  },
+  {
+    "objectID": "posts/0002_env_install_1/index.html#추가사항-앱-실행-별칭-제거",
+    "href": "posts/0002_env_install_1/index.html#추가사항-앱-실행-별칭-제거",
+    "title": "환경 구축 1 : 파이썬 설치",
+    "section": "",
+    "text": "만약 윈도우 환경에서 where python을 실행하였을 때 다음과 같은 항목이 나오면 “앱 실행 별칭” 설정이 되어 있는 경우입니다.\nC:\\Users\\사용자명\\AppData\\Local\\Microsoft\\windowsApps\\python.exe\n“앱 실행 별칭” 설정이 되어 있으면 파이썬 명령을 사용할 때 윈도우 스토어(Store) 화면이 뜨면서 별도의 파이썬 설치를 요구하기 때문에 필요가 없는 경우에는 “앱 실행 별칭” 설정을 끄는 것을 권장합니다. “앱 실행 별칭” 설정을 끄는 방법은 다음과 같습니다.\n\n좌측 하단의 윈도우 버튼을 클릭하여 “설정” 아이콘을 실행하거나 검색창에서 “설정”을 입력하여 설정화면을 실행합니다.\n\n\n\n\n그림 9: 설정 실행\n\n\n\n설정화면에서 “앱” 메뉴를 클릭하여 앱 설정 화면으로 들어갑니다.\n\n\n\n\n그림 10: 앱 설정 화면\n\n\n\n화면 중앙의 “앱 실행 별칭” 메뉴를 클릭하여 다음과 같은 화면이 나오면 python.exe, python3.exe, python3.7.exe 등의 항목에 대해 “끔”을 선택하면 됩니다.\n\n\n\n\n그림 11: 앱 실행 별칭 제거"
+  },
+  {
+    "objectID": "posts/0002_env_install_1/index.html#추가사항-명령-프롬프트에서-파이썬-사용",
+    "href": "posts/0002_env_install_1/index.html#추가사항-명령-프롬프트에서-파이썬-사용",
+    "title": "환경 구축 1 : 파이썬 설치",
+    "section": "",
+    "text": "Miniforge 배포판을 설치한 직후에는 Miniforge 프롬프트에서만 파이썬 사용이 가능합니다.\nMiniforge 프롬프트 뿐 아니라 윈도우 기본 명령 프롬프트(cmd.exe)에서 파이썬을 사용하기 위해서는 추가 섦정이 필요합니다.\n\nMiniforge 프롬프트(명령 프롬프트가 아닙니다.)를 열고 다음과 같은 명령을 실행합니다.\n\nconda init cmd.exe\n\n\n\n그림 12: conda init 설정\n\n\n\n명령 프롬프트(Miniforge 프롬프트가 아닙니다.)를 열고 다음과 같은 명령을 실행합니다.\n\nconda activate\n화면의 프롬프트 앞에 (base)라는 글자가 나타나면 python 명령으로 파이썬을 실행할 수 있습니다.\n\n\n\n그림 13: conda activate 실행"
+  }
+]

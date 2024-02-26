@@ -1,0 +1,1 @@
+Sitemap: https://koscom.github.io/checkapi/sitemap.xml
